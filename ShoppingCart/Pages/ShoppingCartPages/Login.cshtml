@@ -1,0 +1,19 @@
+﻿@page
+@model ShoppingCart.Pages.ShoppingCartPages.LoginModel
+<h2>Login</h2>
+
+<form method="post">
+    <div class="form-group">
+        <label for="Username">Username:</label>
+        <input type="text" id="Username" name="Username" class="form-control" asp-for="UserL.Username" />
+    </div>
+    <div class="form-group">
+        <label for="Password">Password:</label>
+        <input type="password" id="Password" name="Password" class="form-control" asp-for="UserL.Password" />
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+<br />
+<div>
+    <a class="btn btn-success" asp-page="Registration">Registration</a>
+</div>
