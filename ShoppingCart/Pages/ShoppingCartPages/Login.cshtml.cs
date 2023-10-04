@@ -17,28 +17,6 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         
         public void OnGet()
         {
-            //if (ModelState.IsValid)
-            //{
-            //    string username = UserL.Username;
-
-            //    List<UserLogin> userLogins = await IRepo.GetUsernamePassword(username);
-
-            //    if (userLogins.Any(u => u.Username == UserL.Username) && userLogins.Any(u => u.Password == UserL.Password))
-            //    {
-
-            //        TempData["Message"] = "Login successful!";
-            //        return RedirectToPage("/Index");
-            //    }
-            //    else
-            //    {
-
-            //        TempData["Message"] = "Username not found. Please register.";
-            //        return RedirectToPage();
-            //    }
-            //}
-
-
-            //return Page();
 
         }
         [BindProperty]
@@ -52,20 +30,28 @@ namespace ShoppingCart.Pages.ShoppingCartPages
                 string username = UserL.Username;
 
                 LoginDto userLogins = await IRepo.GetUsernamePassword(username);
-                await Console.Out.WriteLineAsync(userLogins.Password);
+                
 
-                if (userLogins!=null && userLogins.UserName==UserL.Username && userLogins.Password==UserL.Password)
+                if (userLogins != null && userLogins.UserName == UserL.Username)
                 {
+                
+                    if(userLogins.Password == UserL.Password)
+                    {
+                        return RedirectToPage("/Index");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid Password. Please try again");
+                        return Page();
+                    }
 
-                    TempData["Message"] = "Login successful!";
-                    return RedirectToPage("/Index");
                 }
                 else
                 {
-
-                    TempData["Message"] = "Username not found. Please register.";
-                    return RedirectToPage("/ShoppingCartPages/Registration");
+                    ModelState.AddModelError(string.Empty, "Invalid username or Please Register");
+                    return Page();
                 }
+                
             }
 
 
