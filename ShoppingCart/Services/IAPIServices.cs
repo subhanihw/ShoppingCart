@@ -8,7 +8,7 @@ namespace ShoppingCart.Services
     public interface IAPIServices
     {
         
-        Task AddEmployee(RegistrationDto ReDto);
+        Task AddUser(RegistrationDto ReDto);
         Task<LoginDto> GetUsernamePassword(string username);
         
     }

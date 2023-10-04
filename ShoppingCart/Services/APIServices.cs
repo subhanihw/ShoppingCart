@@ -15,7 +15,7 @@ namespace ShoppingCart.Services
         {
             this.httpClientFactory = httpClientFactory;
         }
-        public async Task AddEmployee(RegistrationDto ReDto)
+        public async Task AddUser(RegistrationDto ReDto)
         {
             var httpClient = httpClientFactory.CreateClient("WebAPI");
 
