@@ -1,3 +1,4 @@
+
 using ShoppingCart.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ builder.Services.AddHttpClient("WebAPI", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7265/");
 });
-builder.Services.AddTransient<IApiService, ApiService>();
+builder.Services.AddTransient<IAPIServices, APIServices>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,5 +28,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+
+
 
 app.Run();
