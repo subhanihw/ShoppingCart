@@ -20,13 +20,6 @@ namespace ShoppingCart.API.Repositories
         Task<Product> DeleteProductAsync(int id);
         Task<Product> UpdateProductAsync(int id, ProductDTO product);
 
-        // Category methods
-        Task<Category> AddCategory(CategoryDTO category);
-        Task<Category> GetCategoryByIdAsync(int id);
-        Task<List<Category>> GetCategoriesAsync();
-        Task<Category> UpdateCategoryAsync(int id, CategoryDTO category);
-        Task<Category> DeleteCategoryAsync(int id);
-
         // Cart methods
         Task<List<Cart>> GetCartsAsync();
         Task<List<CartItemsDTO>> GetCartByUserIdAsync(int id);
@@ -36,13 +29,6 @@ namespace ShoppingCart.API.Repositories
         Task<Cart> GetCartByIdAsync(int id);
         Task<decimal> GetTotalPrice(int userID);
 
-        // Order methods
-        Task<List<Order>> GetAllOrdersAsync();
-        Task<Order> GetOrderByIdAsync(int id);
-        Task<Order> CreateOrderAsync(OrderDTO order);
-        Task<List<Order>> GetOrdersByUserIdAsync(int userId);
-        Task<Order> UpdateOrderStatusAsync(int id, string status);
-        Task<Order> DeleteOrderAsync(int id);
 
         
     }
