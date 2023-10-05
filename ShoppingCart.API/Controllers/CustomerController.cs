@@ -72,11 +72,10 @@ namespace ShoppingCart.API.Controllers
         [Route("Validate")]
         public async Task<IActionResult> GetPasswordByUserName([FromQuery] string username)
         {
-            var password = await repository.GetPasswordByUserNameAsync(username);
+            var validateDTO = await repository.GetPasswordByUserNameAsync(username);
             
-            if (password != null)
+            if (validateDTO.password != null)
             {
-                var validateDTO = new ValidateDTO { UserName = username, password = password };
                 return Ok(validateDTO);
             }
             return BadRequest("Invalid Credentials");

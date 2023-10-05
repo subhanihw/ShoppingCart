@@ -2,6 +2,8 @@
 using System.Data;
 using Dapper;
 using ShoppingCart.API.Models.DTO;
+using System.Data.Common;
+using System.Data.SqlTypes;
 
 namespace ShoppingCart.API.Repositories
 {
@@ -75,14 +77,22 @@ namespace ShoppingCart.API.Repositories
             return Cust;
         }
 
-        public async Task<string> GetPasswordByUserNameAsync(string userName)
+        public async Task<ValidateDTO> GetPasswordByUserNameAsync(string userName)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@InputUsername", userName, DbType.String, ParameterDirection.Input);
             parameters.Add("@OutputPassword", dbType: DbType.String, direction: ParameterDirection.Output, size: 100);
+            parameters.Add("@OutputCustomerID", dbType: DbType.Int32, direction: ParameterDirection.Output);
             await _connection.ExecuteAsync("GetPasswordByUsername", parameters, commandType: CommandType.StoredProcedure);
             string password = parameters.Get<string>("@OutputPassword");
-            return password;
+            int userID = parameters.Get<int>("@OutputCustomerID");
+            var validateDTO = new ValidateDTO
+            {
+                UserID = userID,
+                UserName = userName,
+                password = password
+            };
+            return validateDTO;
         }
 
         // Product Method Implementations
@@ -218,16 +228,16 @@ namespace ShoppingCart.API.Repositories
             return carts.ToList();
         }
 
-        public async Task<Cart> GetCartByUserIdAsync(int id)
+        public async Task<List<CartItemsDTO>> GetCartByUserIdAsync(int id)
         {
             var param = new DynamicParameters();
             param.Add("@UserID", id, DbType.Int32);
-            var cart = await _connection.QueryFirstOrDefaultAsync<Cart>(
-                "GetCartItemsByUserId",
+            var cart = await _connection.QueryAsync<CartItemsDTO>(
+                "GetCartProductsByUserID",
                 param,
                 commandType: CommandType.StoredProcedure
             );
-            return cart;
+            return cart.ToList();
         }
 
         public async Task<Cart> GetCartByIdAsync(int id)
@@ -273,16 +283,12 @@ namespace ShoppingCart.API.Repositories
             return updatedCart;
         }
 
-        public async Task<Cart> DeleteCartByIdAsync(int id)
+        public async Task DeleteCartByIdAsync(int UserID, int ProductID)
         {
-            var cart = await GetCartByIdAsync(id);
-            if (cart == null)
-                return null;
-
             var param = new DynamicParameters();
-            param.Add("@CartID", id, DbType.Int32);
+            param.Add("@UserID", UserID, DbType.Int32);
+            param.Add("@ProductID", ProductID, DbType.Int32);
             await _connection.ExecuteAsync("DeleteCartItem", param, commandType: CommandType.StoredProcedure);
-            return cart;
         }
 
 
@@ -362,6 +368,19 @@ namespace ShoppingCart.API.Repositories
             param.Add("@OrderID", id, DbType.Int32);
             await _connection.ExecuteAsync("DeleteOrder", param, commandType: CommandType.StoredProcedure);
             return order;
+        }
+
+        public async Task<decimal> GetTotalPrice(int userID)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserID", userID, DbType.Int32);
+            parameters.Add("@TotalPrice", dbType: DbType.Decimal, direction: ParameterDirection.Output, precision: 10, scale: 2);
+
+            await _connection.ExecuteAsync("TotalPriceByUserID", parameters, commandType: CommandType.StoredProcedure);
+
+            
+            var totalPrice = parameters.Get<decimal>("@TotalPrice");
+            return totalPrice;
         }
     }
 }
