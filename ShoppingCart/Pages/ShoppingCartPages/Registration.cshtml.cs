@@ -33,6 +33,7 @@ namespace ShoppingCart.Pages.ShoppingCartPages
                 return RedirectToPage("Login");
             }
 
+            TempData["Success"] = "Registration Success. Please login";
             IRepo.AddUser(reg);
 
             

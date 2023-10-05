@@ -1,0 +1,98 @@
+﻿@page
+@model ShoppingCart.Pages.CartModel
+@{
+}
+<style>
+    /* Styles for the modal dialog */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 40%;
+        text-align: center;
+    }
+
+    .btn {
+        margin: 10px;
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+</style>
+
+
+@if (Model.CartItems.Count != 0)
+{
+    <h1>Cart</h1>
+    <div class="row">
+        @foreach (var cart in Model.CartItems)
+        {
+            var photoPath = "~/images/cartApp/" + (cart.ImageURL) + ".png";
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <img src="@photoPath" class="w-100" asp-append-version="true" />
+                    <div class="card-body text-center">
+                        <h5 class="card-title">@cart.Name</h5>
+                        <p class="card-text">@cart.Description</p>
+                        <p class="card-text">Price: $@cart.Price</p>
+                        <p class="card-text">Quantity: @cart.Quantity</p>
+                        <form method="post" asp-page-handler="Delete">
+                            <input type="hidden" name="ProductId" value="@cart.ProductID" />
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+        <h1>Total = $ @Model.Total</h1>
+        <input type="button" value="Buy Now" onclick="showCustomPrompt();" />
+    </div>
+    <body> 
+        <div id="customPrompt" class="modal">
+            <div class="modal-content">
+                <div class="button-container">
+                    <h1>Do you want to continue?</h1>
+                    <a class="btn btn-secondary" onclick="SuccessPage();">Yes</a>
+                    <button class="btn btn-secondary" onclick="FailedPage();">No</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            function showCustomPrompt() {
+            var modal = document.getElementById("customPrompt");
+            modal.style.display = "block";
+            }
+            function SuccessPage() {
+
+            window.location.href = '/SuccessPage'; 
+            }
+            function FailedPage() {
+
+            window.location.href = '/FailPage';
+            }
+        </script>
+    </body>
+}
+else
+{
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        <div class="text-center">
+            <h1>Cart is empty</h1>
+        </div>
+    </div>
+
+}

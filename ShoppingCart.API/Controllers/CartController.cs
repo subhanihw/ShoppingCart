@@ -35,6 +35,15 @@ namespace ShoppingCart.API.Controllers
             return Ok(cartItem);
         }
 
+        [HttpGet]
+        [Route("TotalPrice/{id}")]
+        public async Task<IActionResult> GetTotalPriceByUserID([FromRoute] int id)
+        {
+            var totalPrice = await repository.GetTotalPrice(id);
+            TotalPriceDTO dto = new TotalPriceDTO { UserID = id , Total = totalPrice};
+            return Ok(dto);
+        }
+
         [HttpPost]
         [Route("Add")]
         public async Task<IActionResult> AddCartItem(CartDTO cartItem)
@@ -44,15 +53,11 @@ namespace ShoppingCart.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> DeleteCartItem(int id)
+        [Route("Delete")]
+        public async Task<IActionResult> DeleteCartItem([FromQuery] int UserID, [FromQuery] int ProductID)
         {
-            var cartItem = await repository.DeleteCartByIdAsync(id);
-            if (cartItem != null)
-            {
-                return Ok(cartItem);
-            }
-            return NotFound($"Cart item with ID = {id} not found");
+            await repository.DeleteCartByIdAsync(UserID, ProductID);
+            return Ok();
         }
 
         [HttpPut]

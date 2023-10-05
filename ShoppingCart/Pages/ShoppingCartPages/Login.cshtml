@@ -1,19 +1,40 @@
-﻿@page
+﻿@page "/"
 @model ShoppingCart.Pages.ShoppingCartPages.LoginModel
-<h2>Login</h2>
-<div asp-validation-summary="All" class="text-danger"></div>
-<form method="post">
-    <div class="form-group">
-        <label for="Username">Username:</label>
-        <input type="text" id="Username" name="Username" class="form-control" asp-for="UserL.Username" />
+@{
+    Layout = "_LayoutWithoutNav";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <h2 class="card-header">Login</h2>
+                <div class="card-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    @if (TempData["Success"] != null)
+                    {
+                        <p class="fw-bold">@TempData["Success"]</p>
+                    }
+
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="Username">Username:</label>
+                            <input type="text" id="Username" name="Username" class="form-control" asp-for="UserL.Username" />
+                            <span asp-validation-for="UserL.Username" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="Password">Password:</label>
+                            <input type="password" id="Password" name="Password" class="form-control" asp-for="UserL.Password" />
+                            <span asp-validation-for="UserL.Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center m-2">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <a class="btn btn-success" asp-page="Registration">Registration</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="Password">Password:</label>
-        <input type="password" id="Password" name="Password" class="form-control" asp-for="UserL.Password" />
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
-<br />
-<div>
-    <a class="btn btn-success" asp-page="Registration">Registration</a>
 </div>
