@@ -120,5 +120,26 @@ namespace ShoppingCart.Services
 
             await httpClient.DeleteAsync(requestUrl);
         }
+
+        public async Task<int> InsertOrder(OrderDTO order)
+        {
+            var httpClient = httpClientFactory.CreateClient("WebAPI");
+            string jsonContent = JsonConvert.SerializeObject(order);
+            var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            var response = await httpClient.PostAsync("api/Order/Add", stringContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            var newOrder = JsonConvert.DeserializeObject<Order>(responseContent);
+
+            return newOrder.OrderID;
+        }
+
+        public async Task InsertOrderDetails(OrderDetailDTO orderDetail)
+        {
+            var httpClient = httpClientFactory.CreateClient("WebAPI");
+            string jsonContent = JsonConvert.SerializeObject(orderDetail);
+            var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            await httpClient.PostAsync("api/Order/OrderDetails/Add", stringContent);
+        }
     }
 }
