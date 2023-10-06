@@ -159,7 +159,6 @@ namespace ShoppingCart.API.Repositories
             return Product;
         }
 
-        
         // Cart methods implementation
         public async Task<List<Cart>> GetCartsAsync()
         {
@@ -243,5 +242,52 @@ namespace ShoppingCart.API.Repositories
             var totalPrice = parameters.Get<decimal>("@TotalPrice");
             return totalPrice;
         }
+
+        public async Task<Order> InsertOrders(OrderDTO order)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserID", order.UserID);
+            parameters.Add("@OrderDate", order.OrderDate);
+            parameters.Add("@Total", order.Total);
+            parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connection.ExecuteAsync("InsertOrder", parameters, commandType: CommandType.StoredProcedure);
+
+            int newID = parameters.Get<int>("@OrderID");
+            var newOrder = new Order
+            {
+                OrderID = newID,
+                OrderDate = order.OrderDate,
+                Total = order.Total,
+                UserID = order.UserID
+            };
+
+            return newOrder;
+        }
+
+        public async Task<OrderDetails> InsertOrderDetail(OrderDetailDTO orderDetail)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@OrderID", orderDetail.OrderID);
+            parameters.Add("@ProductID", orderDetail.ProductID);
+            parameters.Add("@Quantity", orderDetail.Quantity);
+            parameters.Add("@Price", orderDetail.Price);
+            parameters.Add("@OrderDetailID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connection.ExecuteAsync("InsertOrderDetail", parameters, commandType: CommandType.StoredProcedure);
+
+            int newOrderDetailID = parameters.Get<int>("@OrderDetailID");
+
+            var orderDetails = new OrderDetails
+            {
+                OrderDetailID = newOrderDetailID,
+                OrderID = orderDetail.OrderID,
+                ProductID = orderDetail.ProductID,
+                Quantity = orderDetail.Quantity,
+                Price = orderDetail.Price
+            };
+            return orderDetails;
+        }
+
     }
 }

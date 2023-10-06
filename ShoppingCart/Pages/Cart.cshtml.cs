@@ -9,14 +9,14 @@ namespace ShoppingCart.Pages
     public class CartModel : PageModel
     {
         private readonly IAPIServices apiService;
-        public List<CartItemsDTO> CartItems { get; set; }
+        public List<CartItemsDTO> CartItems { get; set; } = new List<CartItemsDTO>();
         public decimal Total { get; set; }
 
         public CartModel(IAPIServices apiService)
         {
             this.apiService = apiService;
         }
-        public async Task OnGet()
+        public async Task OnGetAsync()
         {
             var userID = Convert.ToInt32(TempData["UserID"]);
             TempData.Keep("UserID");
