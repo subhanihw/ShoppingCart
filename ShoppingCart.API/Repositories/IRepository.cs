@@ -20,7 +20,6 @@ namespace ShoppingCart.API.Repositories
         Task<Product> DeleteProductAsync(int id);
         Task<Product> UpdateProductAsync(int id, ProductDTO product);
 
-       
         // Cart methods
         Task<List<Cart>> GetCartsAsync();
         Task<List<CartItemsDTO>> GetCartByUserIdAsync(int id);
@@ -35,7 +34,6 @@ namespace ShoppingCart.API.Repositories
 
         // Order Details method
         Task<OrderDetails> InsertOrderDetail(OrderDetailDTO orderDetail);
-
 
     }
 }

@@ -159,7 +159,6 @@ namespace ShoppingCart.API.Repositories
             return Product;
         }
 
-   
         // Cart methods implementation
         public async Task<List<Cart>> GetCartsAsync()
         {
