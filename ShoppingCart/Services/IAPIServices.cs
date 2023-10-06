@@ -16,6 +16,9 @@ namespace ShoppingCart.Services
         Task<List<CartItemsDTO>> GetCartItems(int UserID);
         Task<decimal> GetTotalPriceCart(int UserID);
         Task DeleteCartItem(int UserID, int ProductID);
+
+        Task<int> InsertOrder(OrderDTO order);
+        Task InsertOrderDetails(OrderDetailDTO orderDetail);
         
     }
 }

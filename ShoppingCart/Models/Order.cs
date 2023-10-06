@@ -1,4 +1,4 @@
-﻿namespace ShoppingCart.API.Models
+﻿namespace ShoppingCart.Models
 {
     public class Order
     {
