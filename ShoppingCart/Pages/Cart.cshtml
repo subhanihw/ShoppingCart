@@ -56,8 +56,8 @@
                 </div>
             </div>
         }
-        <h1>Total = $ @Model.Total</h1>
-        <input type="button" value="Buy Now" asp-page-handler="PassData"  onclick="showCustomPrompt();" />
+        <h1 class="text-center">Total = $ @Model.Total</h1>
+        <input type="button" class="btn btn-primary mt-4" value="Buy Now" asp-page-handler="PassData" onclick="showCustomPrompt();" />
     </div>
     <body> 
         <div id="customPrompt" class="modal">

@@ -289,5 +289,26 @@ namespace ShoppingCart.API.Repositories
             return orderDetails;
         }
 
+        public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@UserID", userId, DbType.Int32);
+
+            var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param,commandType: CommandType.StoredProcedure);
+
+            return orders.ToList();
+        }
+
+        public async Task<List<OrderProductsDTO>> GetProductDetails(int userId, int orderId)
+        {
+            var param = new DynamicParameters();
+            param.Add("@UserID", userId, DbType.Int32);
+            param.Add("@OrderID", orderId, DbType.Int32);
+
+            var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails",param,commandType: CommandType.StoredProcedure);
+
+            return productDetails.ToList();
+        }
+
     }
 }
