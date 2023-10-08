@@ -1,0 +1,29 @@
+﻿@page
+@model ShoppingCart.Pages.OrderDetailsModel
+@{
+}
+<div class="container mt-5">
+    <h1>Order ID: @Model.OrderID</h1>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product ID</th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var orderProduct in Model.Products)
+            {
+                <tr>
+                    <td>@orderProduct.ProductID</td>
+                    <td>@orderProduct.Name</td>
+                    <td>@orderProduct.Quantity</td>
+                    <td>@(@orderProduct.Price * @orderProduct.Quantity)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-page="/Orders" class="btn btn-primary">Back to Orders</a>
+</div>
