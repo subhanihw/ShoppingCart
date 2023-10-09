@@ -31,9 +31,11 @@ namespace ShoppingCart.API.Repositories
 
         // Order methods
         Task<Order> InsertOrders(OrderDTO order);
+        Task<List<Order>> GetOrdersByUserIdAsync(int userId);
 
         // Order Details method
         Task<OrderDetails> InsertOrderDetail(OrderDetailDTO orderDetail);
+        Task<List<OrderProductsDTO>> GetProductDetails(int userId, int orderId);
 
     }
 }

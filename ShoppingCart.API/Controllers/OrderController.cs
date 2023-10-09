@@ -31,5 +31,21 @@ namespace ShoppingCart.API.Controllers
             var orderDetails = await repository.InsertOrderDetail(order);
             return Ok(orderDetails);
         }
+
+        [HttpGet]
+        [Route("{id}")]
+        public async Task<IActionResult> GetOrdersByUserID(int id)
+        {
+            var orders = await repository.GetOrdersByUserIdAsync(id);
+            return Ok(orders);
+        }
+
+        [HttpGet]
+        [Route("GetProductDetails")]
+        public async Task<IActionResult> GetProductDetailsByOrderID([FromQuery] int userID,[FromQuery] int orderID)
+        {
+            var products = await repository.GetProductDetails(userID, orderID);
+            return Ok(products);
+        }
     }
 }
