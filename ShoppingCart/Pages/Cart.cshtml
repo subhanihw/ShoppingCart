@@ -47,7 +47,18 @@
                         <h5 class="card-title">@cart.Name</h5>
                         <p class="card-text">@cart.Description</p>
                         <p class="card-text">Price: $@cart.Price</p>
-                        <p class="card-text">Quantity: @cart.Quantity</p>
+
+                        <div class="input-group input-group-sm">
+                            <!-- Added input-group-sm to make the input group smaller -->
+                            <button class="btn btn-secondary" type="button" onclick="decrementQuantity(@cart.ProductID)">-</button>
+                            <input type="text" id="quantity-@cart.ProductID" class="form-control form-control-sm" value="@cart.Quantity" readonly>
+                            <span class="input-group-btn">
+                                <button class="btn btn-secondary" type="button" onclick="incrementQuantity(@cart.ProductID)">+</button>
+                            </span>
+                        </div>
+                        @* <p class="card-text">Quantity: @cart.Quantity</p> *@
+                        
+                        
                         <form method="post" asp-page-handler="Delete">
                             <input type="hidden" name="ProductId" value="@cart.ProductID" />
                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -71,7 +82,26 @@
         </div>
 
         <script>
+            function incrementQuantity(productId) {
+                var quantityInput = document.getElementById("quantity-" + productId);
+                var currentQuantity = parseInt(quantityInput.value);
+                quantityInput.value = currentQuantity + 1;
+                updateCart(productId, currentQuantity + 1);
+            }
 
+            function decrementQuantity(productId) {
+                var quantityInput = document.getElementById("quantity-" + productId);
+                var currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity > 1) {
+                    quantityInput.value = currentQuantity - 1;
+                    updateCart(productId, currentQuantity - 1);
+                }
+            }
+
+            function updateCart(productId, quantity) {
+                // You can make an AJAX call to update the cart in the backend
+                // Example: $.post('/Cart/UpdateCart', { productId: productId, quantity: quantity });
+            }
             function showCustomPrompt() {
             var modal = document.getElementById("customPrompt");
             modal.style.display = "block";

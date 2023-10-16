@@ -32,5 +32,19 @@ namespace ShoppingCart.Pages
             Total = await apiService.GetTotalPriceCart(userID);
             return RedirectToPage("/Cart");
         }
+
+        public async Task<IActionResult> OnPostUpdateCart(int productId, int quantity)
+        {
+            var userID = Convert.ToInt32(TempData["UserID"]);
+            TempData.Keep("UserID");
+
+            // Update the cart item with the new quantity
+            await apiService.UpdateCartItemQuantity(userID, productId, quantity);
+
+            // Recalculate the total price
+            Total = await apiService.GetTotalPriceCart(userID);
+
+            return RedirectToPage("/Cart");
+        }
     }
 }
