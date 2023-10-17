@@ -28,6 +28,7 @@ namespace ShoppingCart.API.Repositories
         Task<int> DeleteCartByIdAsync(int UserID, int ProductID);
         Task<Cart> GetCartByIdAsync(int id);
         Task<decimal> GetTotalPrice(int userID);
+        Task DeleteCart(int userID);
 
         // Order methods
         Task<Order> InsertOrders(OrderDTO order);

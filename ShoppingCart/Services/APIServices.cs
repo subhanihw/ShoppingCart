@@ -77,6 +77,7 @@ namespace ShoppingCart.Services
             string jsonContent = JsonConvert.SerializeObject(addToCart);
             var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             var response = await httpClient.PostAsync("api/Cart/Add", stringContent);
+            Console.WriteLine(response.Content);
         }
 
         public async Task<List<CartItemsDTO>> GetCartItems(int UserID)
@@ -189,9 +190,18 @@ namespace ShoppingCart.Services
             return products;
         }
 
-        public Task UpdateCartItemQuantity(int userID, int productId, int quantity)
+       
+
+        public async Task DeleteAllCartItems(int userID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var httpClient = httpClientFactory.CreateClient("WebAPI");
+                await httpClient.DeleteAsync($"api/Cart/DeleteAllCartItems/{userID}");
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

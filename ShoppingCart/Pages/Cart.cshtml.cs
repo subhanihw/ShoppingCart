@@ -23,12 +23,27 @@ namespace ShoppingCart.Pages
             CartItems = await apiService.GetCartItems(userID);
             Total = await apiService.GetTotalPriceCart(userID);      
         }
-        public async Task<IActionResult> OnPostAsync(int productID)
+        public async Task<IActionResult> OnPostDelete(int productID)
         {
             var userID = Convert.ToInt32(TempData["UserID"]);
             TempData.Keep("UserID");
             await apiService.DeleteCartItem(userID, productID);
             Total = await apiService.GetTotalPriceCart(userID);
+            return RedirectToPage("/Cart");
+        }
+
+        public async Task<IActionResult> OnPostUpdateQuantity()
+        {
+            var userID = Convert.ToInt32(TempData["UserID"]);
+            TempData.Keep("UserID");
+            int productID = int.Parse(Request.Form["productID"]);
+            int quantity = int.Parse(Request.Form["quantity"]);
+            await apiService.AddToCart(new AddToCartDTO
+            {
+                ProductId = productID,
+                Quantity = quantity,
+                UserID = userID
+            });
             return RedirectToPage("/Cart");
         }
     }

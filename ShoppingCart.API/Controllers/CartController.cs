@@ -108,5 +108,24 @@ namespace ShoppingCart.API.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+
+        [HttpDelete]
+        [Route("DeleteAllCartItems/{UserID}")]
+        public async Task<IActionResult> DeleteAll([FromRoute] int UserID)
+        {
+            try
+            {
+                await repository.DeleteCart(UserID);
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

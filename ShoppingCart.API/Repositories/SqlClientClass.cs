@@ -483,6 +483,28 @@ namespace ShoppingCart.API.Repositories
             }
         }
 
+        public async Task DeleteCart(int id)
+        {
+            try{
+                var customer = await GetCustomerByIdAsync(id);
+                if (customer == null)
+                {
+                    throw new NotFoundException("Customer not found.");
+                }
+
+                var param = new DynamicParameters();
+                param.Add("@UserID", id, DbType.Int32);
+                await _connection.ExecuteAsync("DeleteAllCartItems", param, commandType: CommandType.StoredProcedure);
+            }
+            catch (NotFoundException ex)
+            {
+                throw new NotFoundException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
 
     }
 }
