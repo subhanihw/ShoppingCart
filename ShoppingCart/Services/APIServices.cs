@@ -81,16 +81,28 @@ namespace ShoppingCart.Services
 
         public async Task<List<CartItemsDTO>> GetCartItems(int UserID)
         {
-            var httpClient = httpClientFactory.CreateClient("WebAPI");
- 
-            var response = await httpClient.GetAsync($"api/Cart/UserID/{UserID}");
-            if (response.IsSuccessStatusCode)
+            try
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var cartItems = JsonConvert.DeserializeObject<List<CartItemsDTO>>(content);
-                return cartItems;
+                var httpClient = httpClientFactory.CreateClient("WebAPI");
+
+                var response = await httpClient.GetAsync($"api/Cart/UserID/{UserID}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    if (content == "Cart is Empty")
+                    {
+                        return new List<CartItemsDTO>();
+                    }
+
+                    var cartItems = JsonConvert.DeserializeObject<List<CartItemsDTO>>(content);
+                    return cartItems;
+                }
+                
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
             }
-            return null;
+            return new List<CartItemsDTO>();
         }
 
         public async Task<decimal> GetTotalPriceCart(int UserID)
@@ -101,6 +113,10 @@ namespace ShoppingCart.Services
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
+                if (content == "Cart is Empty")
+                {
+                    return 0.0m;
+                }
                 var TotalPrice = JsonConvert.DeserializeObject<TotalPriceDTO>(content);
                 return TotalPrice.Total;
             }

@@ -12,6 +12,7 @@ namespace ShoppingCart.API.Repositories
         Task<Customer> DeleteCustomerAsync(int id);
         Task<Customer> UpdateCustomerAsync(int id, CustomerDTO customer);
         Task<ValidateDTO> GetPasswordByUserNameAsync(string userName);
+        Task<bool> ValidateUserNamePassword(string userName, string password);
 
         // Product Methods
         Task<List<Product>> GetProductsAsync();
@@ -24,8 +25,7 @@ namespace ShoppingCart.API.Repositories
         Task<List<Cart>> GetCartsAsync();
         Task<List<CartItemsDTO>> GetCartByUserIdAsync(int id);
         Task<Cart> AddCart(CartDTO cart);
-        Task<Cart> UpdateCartItemQuantityByIdAsync(int id, int Quantity);
-        Task DeleteCartByIdAsync(int UserID, int ProductID);
+        Task<int> DeleteCartByIdAsync(int UserID, int ProductID);
         Task<Cart> GetCartByIdAsync(int id);
         Task<decimal> GetTotalPrice(int userID);
 

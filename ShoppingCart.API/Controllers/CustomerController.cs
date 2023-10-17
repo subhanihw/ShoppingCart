@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.API.ExceptionHandling;
 using ShoppingCart.API.Models.DTO;
 using ShoppingCart.API.Repositories;
 
@@ -27,12 +28,16 @@ namespace ShoppingCart.API.Controllers
         [Route("{id}")]
         public async Task<IActionResult> GetCustomerByID([FromRoute] int id)
         {
-            var customer = await repository.GetCustomerByIdAsync(id);
-            if (customer == null)
+            try
             {
-                return NotFound($"Customer with ID = {id} not found");
-            }
-            return Ok(customer);    
+                var customer = await repository.GetCustomerByIdAsync(id);
+                return Ok(customer);
+            }catch (NotFoundException ex){
+                return NotFound(ex.Message);
+            } 
+            catch (Exception ex) { 
+                return StatusCode(500, ex.Message);
+            } 
         }
 
         [HttpPost]
@@ -79,6 +84,27 @@ namespace ShoppingCart.API.Controllers
                 return Ok(validateDTO);
             }
             return BadRequest("Invalid Credentials");
+        }
+
+        [HttpGet]
+        [Route("ValidateUser")]
+        public async Task<IActionResult> ValidateUser([FromQuery] string username, [FromQuery] string password)
+        {
+           try
+            {
+                var isExists = await repository.ValidateUserNamePassword(username, password);
+                var response = new AuthenticationResponse
+                {
+                    IsAuthenticated = isExists
+                };
+
+                return Ok(response);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

@@ -3,7 +3,6 @@
 @{
 }
 <style>
-    /* Styles for the modal dialog */
     .modal {
         display: none;
         position: fixed;
@@ -48,6 +47,28 @@
                         <p class="card-text">@cart.Description</p>
                         <p class="card-text">Price: $@cart.Price</p>
                         <p class="card-text">Quantity: @cart.Quantity</p>
+                        <div class="d-flex mb-4" style="max-width: 300px">
+                            <form method="post" asp-page-handler="DecreaseQuantity" asp-route-productId="@cart.ProductID">
+                                <button class="btn btn-primary px-3 me-2">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </form>
+
+                            <form method="post" asp-page-handler="IncreaseQuantity" asp-route-productId="@cart.ProductID">
+                                <button class="btn btn-primary px-3 ms-2">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </form>
+
+                            <form method="post" asp-page-handler="UpdateQuantity" asp-route-productId="@cart.ProductID">
+                                <div class="form-outline">
+                                    <input id="form-@cart.ProductID" min="0" name="quantity" value="@cart.Quantity" type="number" class="form-control" />
+                                    <label class="form-label" for="form-@cart.ProductID">Quantity</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </form>
+                        </div>
+
                         <form method="post" asp-page-handler="Delete">
                             <input type="hidden" name="ProductId" value="@cart.ProductID" />
                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -82,7 +103,7 @@
             }
             function FailedPage() {
 
-            window.location.href = '/FailPage';
+            window.location.href = '/Cart';
             }
         </script>
     </body>
