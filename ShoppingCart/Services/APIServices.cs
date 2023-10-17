@@ -188,5 +188,10 @@ namespace ShoppingCart.Services
             var products = JsonConvert.DeserializeObject<List<OrderProductDTO>>(content);
             return products;
         }
+
+        public Task UpdateCartItemQuantity(int userID, int productId, int quantity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -21,8 +21,7 @@ namespace ShoppingCart.Pages
             var userID = Convert.ToInt32(TempData["UserID"]);
             TempData.Keep("UserID");
             CartItems = await apiService.GetCartItems(userID);
-            Total = await apiService.GetTotalPriceCart(userID);
-            
+            Total = await apiService.GetTotalPriceCart(userID);      
         }
         public async Task<IActionResult> OnPostAsync(int productID)
         {

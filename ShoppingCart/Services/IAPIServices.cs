@@ -21,6 +21,6 @@ namespace ShoppingCart.Services
         Task InsertOrderDetails(OrderDetailDTO orderDetail);
         Task<List<Order>> GetOrderByUserID(int UserID);
         Task<List<OrderProductDTO>> GetProductDetails(int UserID, int OrderID);
-        
+        Task UpdateCartItemQuantity(int userID, int productId, int quantity);
     }
 }
