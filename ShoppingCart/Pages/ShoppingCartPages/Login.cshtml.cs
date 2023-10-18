@@ -20,7 +20,7 @@ namespace ShoppingCart.Pages.ShoppingCartPages
 
         }
         [BindProperty]
-        public UserLogin UserL { get; set; }
+        public UserLogin UserL { get; set; } = new UserLogin();
 
 
         public async Task<IActionResult> OnPostAsync()
@@ -37,7 +37,8 @@ namespace ShoppingCart.Pages.ShoppingCartPages
                 
                     if(userLogins.Password == UserL.Password)
                     {
-                        return RedirectToPage("/Index");
+                        TempData["UserID"] = userLogins.UserID;
+                        return RedirectToPage("/ProductsPage");
                     }
                     else
                     {

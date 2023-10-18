@@ -1,31 +1,37 @@
 ﻿@page
 @model ShoppingCart.Pages.ShoppingCartPages.RegistrationModel
 @{
+    Layout = "_LayoutWithoutNav";
 }
+<h1>Register</h1>
+<div asp-validation-summary="All" class="text-danger"></div>
 <form method="post">
     <div class="form-group">
         <label for="Username">Username</label>
-        <input type="text" class="form-control" id="Username" name="Username" asp-for="User.Username">
+        <input type="text" class="form-control" id="Username" name="Username" asp-for="User.Username" />
+        <span asp-validation-for="User.Username" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label for="Password">Password</label>
-        <input type="password" class="form-control" id="Password" name="Password" asp-for="User.Password">
+        <input type="password" class="form-control" id="Password" name="Password" asp-for="User.Password" />
+        <span asp-validation-for="User.Password" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label>Gender</label>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="Male" name="Gender" value="M" asp-for="User.Gender">
+            <input class="form-check-input" type="radio" id="Male" name="Gender" value="M" asp-for="User.Gender" />
             <label class="form-check-label" for="Male">Male</label>
         </div>
         <div class="form-check">
-            <input class="form-check-input" type="radio" id="Female" name="Gender" value="F" asp-for="User.Gender">
+            <input class="form-check-input" type="radio" id="Female" name="Gender" value="F" asp-for="User.Gender" />
             <label class="form-check-label" for="Female">Female</label>
         </div>
-        
+        <span asp-validation-for="User.Gender" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label for="PhoneNumber">Phone Number</label>
-        <input type="tel" class="form-control" id="PhoneNumber" name="PhoneNumber" asp-for="User.PhoneNumber">
+        <input type="tel" class="form-control" id="PhoneNumber" name="PhoneNumber" asp-for="User.PhoneNumber" />
+        <span asp-validation-for="User.PhoneNumber" class="text-danger"></span>
     </div>
     <div class="form-group">
         <label for="State">State</label>
@@ -60,12 +66,10 @@
             <option value="West Bengal">West Bengal</option>
            
         </select>
+        <span asp-validation-for="User.State" class="text-danger"></span>
     </div>
     <button type="submit" class="btn btn-primary">Register</button>
-    <div>
-        <br />
-    </div>
-    
+    <div><br /></div>
     <div>
         <a class="btn btn-success" asp-page="Login">Login</a>
     </div>

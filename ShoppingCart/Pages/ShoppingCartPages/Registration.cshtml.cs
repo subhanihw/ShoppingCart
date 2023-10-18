@@ -30,10 +30,11 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         {
             if (!ModelState.IsValid)
             {
-                return RedirectToPage("Login");
+                return Page();
             }
 
-            IRepo.AddUser(reg);
+            TempData["Success"] = "Registration Success. Please login";
+            await IRepo.AddUser(reg);
 
             
             return RedirectToPage("Login");

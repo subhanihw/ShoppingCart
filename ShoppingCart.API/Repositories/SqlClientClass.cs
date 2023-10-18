@@ -2,6 +2,8 @@
 using System.Data;
 using Dapper;
 using ShoppingCart.API.Models.DTO;
+using System.Data.Common;
+using System.Data.SqlTypes;
 
 namespace ShoppingCart.API.Repositories
 {
@@ -75,14 +77,22 @@ namespace ShoppingCart.API.Repositories
             return Cust;
         }
 
-        public async Task<string> GetPasswordByUserNameAsync(string userName)
+        public async Task<ValidateDTO> GetPasswordByUserNameAsync(string userName)
         {
             var parameters = new DynamicParameters();
             parameters.Add("@InputUsername", userName, DbType.String, ParameterDirection.Input);
             parameters.Add("@OutputPassword", dbType: DbType.String, direction: ParameterDirection.Output, size: 100);
+            parameters.Add("@OutputCustomerID", dbType: DbType.Int32, direction: ParameterDirection.Output);
             await _connection.ExecuteAsync("GetPasswordByUsername", parameters, commandType: CommandType.StoredProcedure);
             string password = parameters.Get<string>("@OutputPassword");
-            return password;
+            int userID = parameters.Get<int>("@OutputCustomerID");
+            var validateDTO = new ValidateDTO
+            {
+                UserID = userID,
+                UserName = userName,
+                password = password
+            };
+            return validateDTO;
         }
 
         // Product Method Implementations
@@ -149,68 +159,6 @@ namespace ShoppingCart.API.Repositories
             return Product;
         }
 
-        // Methods for Category
-
-        public async Task<Category> AddCategory(CategoryDTO category)
-        {
-            var parameters = new DynamicParameters();
-            parameters.Add("Name", category.Name, DbType.String);
-            parameters.Add("NewCategoryID", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            await _connection.ExecuteAsync("CreateCategory", parameters, commandType: CommandType.StoredProcedure);
-            int insertedCategoryId = parameters.Get<int>("@NewCategoryID");
-            var newCategory = await GetCategoryByIdAsync(insertedCategoryId);
-            return newCategory;
-        }
-
-        public async Task<Category> GetCategoryByIdAsync(int id)
-        {
-            var param = new DynamicParameters();
-            param.Add("@CategoryID", id, DbType.Int32);
-            var category = await _connection.QueryFirstOrDefaultAsync<Category>(
-                "GetCategoryByID",
-                param,
-                commandType: CommandType.StoredProcedure
-            );
-            return category;
-        }
-
-        public async Task<List<Category>> GetCategoriesAsync()
-        {
-            var categories = await _connection.QueryAsync<Category>(
-                "GetCategories",
-                null,
-                commandType: CommandType.StoredProcedure
-            );
-            return categories.ToList();
-        }
-
-        public async Task<Category> UpdateCategoryAsync(int id, CategoryDTO category)
-        {
-            var existingCategory = await GetCategoryByIdAsync(id);
-            if (existingCategory == null)
-                return null;
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@CategoryID", id, DbType.Int32);
-            parameters.Add("Name", category.Name, DbType.String);
-
-            await _connection.ExecuteAsync("UpdateCategory", parameters, commandType: CommandType.StoredProcedure);
-            existingCategory = await GetCategoryByIdAsync(id);
-            return existingCategory;
-        }
-
-        public async Task<Category> DeleteCategoryAsync(int id)
-        {
-            var category = await GetCategoryByIdAsync(id);
-            if (category == null)
-                return null;
-
-            var param = new DynamicParameters();
-            param.Add("@CategoryID", id, DbType.Int32);
-            await _connection.ExecuteAsync("DeleteCategory", param, commandType: CommandType.StoredProcedure);
-            return category;
-        }
-
         // Cart methods implementation
         public async Task<List<Cart>> GetCartsAsync()
         {
@@ -218,16 +166,16 @@ namespace ShoppingCart.API.Repositories
             return carts.ToList();
         }
 
-        public async Task<Cart> GetCartByUserIdAsync(int id)
+        public async Task<List<CartItemsDTO>> GetCartByUserIdAsync(int id)
         {
             var param = new DynamicParameters();
             param.Add("@UserID", id, DbType.Int32);
-            var cart = await _connection.QueryFirstOrDefaultAsync<Cart>(
-                "GetCartItemsByUserId",
+            var cart = await _connection.QueryAsync<CartItemsDTO>(
+                "GetCartProductsByUserID",
                 param,
                 commandType: CommandType.StoredProcedure
             );
-            return cart;
+            return cart.ToList();
         }
 
         public async Task<Cart> GetCartByIdAsync(int id)
@@ -273,95 +221,94 @@ namespace ShoppingCart.API.Repositories
             return updatedCart;
         }
 
-        public async Task<Cart> DeleteCartByIdAsync(int id)
+        public async Task DeleteCartByIdAsync(int UserID, int ProductID)
         {
-            var cart = await GetCartByIdAsync(id);
-            if (cart == null)
-                return null;
-
             var param = new DynamicParameters();
-            param.Add("@CartID", id, DbType.Int32);
+            param.Add("@UserID", UserID, DbType.Int32);
+            param.Add("@ProductID", ProductID, DbType.Int32);
             await _connection.ExecuteAsync("DeleteCartItem", param, commandType: CommandType.StoredProcedure);
-            return cart;
         }
 
 
-        // Orders Implementation
-        public async Task<List<Order>> GetAllOrdersAsync()
-        {
-            var orders = await _connection.QueryAsync<Order>(
-                "GetAllOrders",
-                null,
-                commandType: CommandType.StoredProcedure
-            );
-            return orders.ToList();
-        }
-
-        public async Task<Order> GetOrderByIdAsync(int id)
-        {
-            var param = new DynamicParameters();
-            param.Add("@OrderID", id, DbType.Int32);
-            var order = await _connection.QueryFirstOrDefaultAsync<Order>(
-                "GetOrdersById",
-                param,
-                commandType: CommandType.StoredProcedure
-            );
-            return order;
-        }
-
-        public async Task<Order> CreateOrderAsync(OrderDTO order)
+        public async Task<decimal> GetTotalPrice(int userID)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("UserID", order.UserID, DbType.Int32);
-            parameters.Add("OrderDate", order.OrderDate, DbType.DateTime);
-            parameters.Add("Status", order.Status, DbType.String);
-            parameters.Add("NewOrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            parameters.Add("@UserID", userID, DbType.Int32);
+            parameters.Add("@TotalPrice", dbType: DbType.Decimal, direction: ParameterDirection.Output, precision: 10, scale: 2);
 
-            await _connection.ExecuteAsync("CreateOrder", parameters, commandType: CommandType.StoredProcedure);
+            await _connection.ExecuteAsync("TotalPriceByUserID", parameters, commandType: CommandType.StoredProcedure);
 
-            int newOrderID = parameters.Get<int>("NewOrderID");
-            var newOrder = await GetOrderByIdAsync(newOrderID);
+            
+            var totalPrice = parameters.Get<decimal>("@TotalPrice");
+            return totalPrice;
+        }
+
+        public async Task<Order> InsertOrders(OrderDTO order)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserID", order.UserID);
+            parameters.Add("@OrderDate", order.OrderDate);
+            parameters.Add("@Total", order.Total);
+            parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connection.ExecuteAsync("InsertOrder", parameters, commandType: CommandType.StoredProcedure);
+
+            int newID = parameters.Get<int>("@OrderID");
+            var newOrder = new Order
+            {
+                OrderID = newID,
+                OrderDate = order.OrderDate,
+                Total = order.Total,
+                UserID = order.UserID
+            };
+
             return newOrder;
+        }
+
+        public async Task<OrderDetails> InsertOrderDetail(OrderDetailDTO orderDetail)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("@OrderID", orderDetail.OrderID);
+            parameters.Add("@ProductID", orderDetail.ProductID);
+            parameters.Add("@Quantity", orderDetail.Quantity);
+            parameters.Add("@Price", orderDetail.Price);
+            parameters.Add("@OrderDetailID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+            await _connection.ExecuteAsync("InsertOrderDetail", parameters, commandType: CommandType.StoredProcedure);
+
+            int newOrderDetailID = parameters.Get<int>("@OrderDetailID");
+
+            var orderDetails = new OrderDetails
+            {
+                OrderDetailID = newOrderDetailID,
+                OrderID = orderDetail.OrderID,
+                ProductID = orderDetail.ProductID,
+                Quantity = orderDetail.Quantity,
+                Price = orderDetail.Price
+            };
+            return orderDetails;
         }
 
         public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
         {
             var param = new DynamicParameters();
             param.Add("@UserID", userId, DbType.Int32);
-            var orders = await _connection.QueryAsync<Order>(
-                "GetOrdersByUserId",
-                param,
-                commandType: CommandType.StoredProcedure
-            );
+
+            var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param,commandType: CommandType.StoredProcedure);
+
             return orders.ToList();
         }
 
-        public async Task<Order> UpdateOrderStatusAsync(int id, string status)
+        public async Task<List<OrderProductsDTO>> GetProductDetails(int userId, int orderId)
         {
-            var existingOrder = await GetOrderByIdAsync(id);
-            if (existingOrder == null)
-                return null;
-
-            var parameters = new DynamicParameters();
-            parameters.Add("@OrderID", id, DbType.Int32);
-            parameters.Add("Status", status, DbType.String);
-
-            await _connection.ExecuteAsync("UpdateOrderStatus", parameters, commandType: CommandType.StoredProcedure);
-
-            var updatedOrder = await GetOrderByIdAsync(id);
-            return updatedOrder;
-        }
-
-        public async Task<Order> DeleteOrderAsync(int id)
-        {
-            var order = await GetOrderByIdAsync(id);
-            if (order == null)
-                return null;
-
             var param = new DynamicParameters();
-            param.Add("@OrderID", id, DbType.Int32);
-            await _connection.ExecuteAsync("DeleteOrder", param, commandType: CommandType.StoredProcedure);
-            return order;
+            param.Add("@UserID", userId, DbType.Int32);
+            param.Add("@OrderID", orderId, DbType.Int32);
+
+            var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails",param,commandType: CommandType.StoredProcedure);
+
+            return productDetails.ToList();
         }
+
     }
 }

@@ -16,64 +16,36 @@ namespace ShoppingCart.API.Controllers
             this.repository = repository;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllOrdersAsync()
+        [HttpPost]
+        [Route("Add")]
+        public async Task<IActionResult> InsertOrder(OrderDTO order)
         {
-            var orders = await repository.GetAllOrdersAsync();
-            return Ok(orders);
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetOrderByIdAsync([FromRoute] int id)
-        {
-            var order = await repository.GetOrderByIdAsync(id);
-            if (order == null)
-            {
-                return NotFound($"Order with ID = {id} not found");
-            }
-            return Ok(order);
+            var newOrder = await repository.InsertOrders(order);
+            return Ok(newOrder);
         }
 
         [HttpPost]
-        [Route("Add")]
-        public async Task<IActionResult> CreateOrderAsync(OrderDTO order)
+        [Route("OrderDetails/Add")]
+        public async Task<IActionResult> InsertOrderDetails(OrderDetailDTO order)
         {
-           var newOrder = await repository.CreateOrderAsync(order);
-           return Ok(newOrder);
+            var orderDetails = await repository.InsertOrderDetail(order);
+            return Ok(orderDetails);
         }
 
         [HttpGet]
-        [Route("ByUser/{userId}")]
-        public async Task<IActionResult> GetOrdersByUserIdAsync([FromRoute] int userId)
+        [Route("{id}")]
+        public async Task<IActionResult> GetOrdersByUserID(int id)
         {
-            var orders = await repository.GetOrdersByUserIdAsync(userId);
+            var orders = await repository.GetOrdersByUserIdAsync(id);
             return Ok(orders);
         }
 
-        [HttpPut]
-        [Route("UpdateStatus/{id}")]
-        public async Task<IActionResult> UpdateOrderStatusAsync([FromRoute] int id, [FromQuery] string status)
+        [HttpGet]
+        [Route("GetProductDetails")]
+        public async Task<IActionResult> GetProductDetailsByOrderID([FromQuery] int userID,[FromQuery] int orderID)
         {
-            var updatedOrder = await repository.UpdateOrderStatusAsync(id, status);
-
-            if (updatedOrder != null)
-            {
-                return Ok(updatedOrder);
-            }
-            return NotFound($"Order with ID = {id} not found");
-        }
-
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> DeleteOrderAsync([FromRoute] int id)
-        {
-            var order = await repository.DeleteOrderAsync(id);
-            if (order != null)
-            {
-                return Ok(order);
-            }
-            return NotFound($"Order with ID = {id} not found");
+            var products = await repository.GetProductDetails(userID, orderID);
+            return Ok(products);
         }
     }
 }

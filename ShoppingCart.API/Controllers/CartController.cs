@@ -24,15 +24,24 @@ namespace ShoppingCart.API.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetCartItemByID([FromRoute] int id)
+        [Route("UserID/{id}")]
+        public async Task<IActionResult> GetCartItemByUserID([FromRoute] int id)
         {
-            var cartItem = await repository.GetCartByIdAsync(id);
+            var cartItem = await repository.GetCartByUserIdAsync(id);
             if (cartItem == null)
             {
                 return NotFound($"Cart item with ID = {id} not found");
             }
             return Ok(cartItem);
+        }
+
+        [HttpGet]
+        [Route("TotalPrice/{id}")]
+        public async Task<IActionResult> GetTotalPriceByUserID([FromRoute] int id)
+        {
+            var totalPrice = await repository.GetTotalPrice(id);
+            TotalPriceDTO dto = new TotalPriceDTO { UserID = id , Total = totalPrice};
+            return Ok(dto);
         }
 
         [HttpPost]
@@ -44,15 +53,11 @@ namespace ShoppingCart.API.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> DeleteCartItem(int id)
+        [Route("Delete")]
+        public async Task<IActionResult> DeleteCartItem([FromQuery] int UserID, [FromQuery] int ProductID)
         {
-            var cartItem = await repository.DeleteCartByIdAsync(id);
-            if (cartItem != null)
-            {
-                return Ok(cartItem);
-            }
-            return NotFound($"Cart item with ID = {id} not found");
+            await repository.DeleteCartByIdAsync(UserID, ProductID);
+            return Ok();
         }
 
         [HttpPut]
