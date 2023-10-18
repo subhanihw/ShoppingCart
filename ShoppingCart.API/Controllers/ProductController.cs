@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.API.ExceptionHandling;
 using ShoppingCart.API.Models.DTO;
 using ShoppingCart.API.Repositories;
 
@@ -19,53 +20,87 @@ namespace ShoppingCart.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
-            var Products = await repository.GetProductsAsync();
-            return Ok(Products);
+            try
+            {
+                var Products = await repository.GetProductsAsync();
+                return Ok(Products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetProductByID([FromRoute] int id)
         {
-            var product = await repository.GetProductByIdAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound($"Product with ID = {id} not found");
+                var product = await repository.GetProductByIdAsync(id);
+                return Ok(product);
             }
-            return Ok(product);
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
         [Route("Add")]
         public async Task<IActionResult> AddProduct(ProductDTO Product)
         {
-            var NewProduct = await repository.AddProduct(Product);
-            return Ok(NewProduct);
+            try
+            {
+                var NewProduct = await repository.AddProduct(Product);
+                return Ok(NewProduct);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var Product = await repository.DeleteProductAsync(id);
-            if (Product != null)
+            try
             {
-                return Ok(Product);
+                var Product = await repository.DeleteProductAsync(id);
+                return Ok(Product);   
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<IActionResult> UpdateProduct([FromRoute] int id, [FromBody] ProductDTO Product)
         {
-            var product = await repository.UpdateProductAsync(id, Product);
-
-            if (product != null)
+            try
             {
-                return Ok(product);
+                var product = await repository.UpdateProductAsync(id, Product);
+                return Ok(product);   
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

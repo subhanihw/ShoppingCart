@@ -20,8 +20,15 @@ namespace ShoppingCart.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var customers = await repository.GetCustomersAsync();
-            return Ok(customers);
+            try
+            {
+                var customers = await repository.GetCustomersAsync();
+                return Ok(customers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
@@ -44,46 +51,66 @@ namespace ShoppingCart.API.Controllers
         [Route("Add")]
         public async Task<IActionResult> AddCustomer(CustomerDTO Customer)
         {
-            var NewCustomer = await repository.AddCustomer(Customer);
-            return Ok(NewCustomer);
+            try
+            {
+                var NewCustomer = await repository.AddCustomer(Customer);
+                return Ok(NewCustomer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var Customer = await repository.DeleteCustomerAsync(id);
-            if (Customer != null)
+            try
             {
+                var Customer = await repository.DeleteCustomerAsync(id);
                 return Ok(Customer);
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<IActionResult> UpdateCustomer([FromRoute] int id, [FromBody] CustomerDTO Customer)
         {
-            var Cust = await repository.UpdateCustomerAsync(id, Customer);
-
-            if (Cust != null)
+            try
             {
+                var Cust = await repository.UpdateCustomerAsync(id, Customer);
                 return Ok(Cust);
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("Validate")]
         public async Task<IActionResult> GetPasswordByUserName([FromQuery] string username)
         {
-            var validateDTO = await repository.GetPasswordByUserNameAsync(username);
-            
-            if (validateDTO.password != null)
-            {
-                return Ok(validateDTO);
-            }
-            return BadRequest("Invalid Credentials");
+             var validateDTO = await repository.GetPasswordByUserNameAsync(username);
+
+             if (validateDTO.password != null)
+             {
+                 return Ok(validateDTO);
+             }
+             return BadRequest("Invalid Credentials");
         }
 
         [HttpGet]

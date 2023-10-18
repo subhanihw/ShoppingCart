@@ -393,69 +393,101 @@ namespace ShoppingCart.API.Repositories
 
         public async Task<Order> InsertOrders(OrderDTO order)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("@UserID", order.UserID);
-            parameters.Add("@OrderDate", order.OrderDate);
-            parameters.Add("@Total", order.Total);
-            parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            await _connection.ExecuteAsync("InsertOrder", parameters, commandType: CommandType.StoredProcedure);
-
-            int newID = parameters.Get<int>("@OrderID");
-            var newOrder = new Order
+            try
             {
-                OrderID = newID,
-                OrderDate = order.OrderDate,
-                Total = order.Total,
-                UserID = order.UserID
-            };
+                var parameters = new DynamicParameters();
+                parameters.Add("@UserID", order.UserID);
+                parameters.Add("@OrderDate", order.OrderDate);
+                parameters.Add("@Total", order.Total);
+                parameters.Add("@OrderID", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-            return newOrder;
+                await _connection.ExecuteAsync("InsertOrder", parameters, commandType: CommandType.StoredProcedure);
+
+                int newID = parameters.Get<int>("@OrderID");
+                var newOrder = new Order
+                {
+                    OrderID = newID,
+                    OrderDate = order.OrderDate,
+                    Total = order.Total,
+                    UserID = order.UserID
+                };
+
+                return newOrder;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<OrderDetails> InsertOrderDetail(OrderDetailDTO orderDetail)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("@OrderID", orderDetail.OrderID);
-            parameters.Add("@ProductID", orderDetail.ProductID);
-            parameters.Add("@Quantity", orderDetail.Quantity);
-            parameters.Add("@Price", orderDetail.Price);
-            parameters.Add("@OrderDetailID", dbType: DbType.Int32, direction: ParameterDirection.Output);
-
-            await _connection.ExecuteAsync("InsertOrderDetail", parameters, commandType: CommandType.StoredProcedure);
-
-            int newOrderDetailID = parameters.Get<int>("@OrderDetailID");
-
-            var orderDetails = new OrderDetails
+            try
             {
-                OrderDetailID = newOrderDetailID,
-                OrderID = orderDetail.OrderID,
-                ProductID = orderDetail.ProductID,
-                Quantity = orderDetail.Quantity,
-                Price = orderDetail.Price
-            };
-            return orderDetails;
+                var parameters = new DynamicParameters();
+                parameters.Add("@OrderID", orderDetail.OrderID);
+                parameters.Add("@ProductID", orderDetail.ProductID);
+                parameters.Add("@Quantity", orderDetail.Quantity);
+                parameters.Add("@Price", orderDetail.Price);
+                parameters.Add("@OrderDetailID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+
+                await _connection.ExecuteAsync("InsertOrderDetail", parameters, commandType: CommandType.StoredProcedure);
+
+                int newOrderDetailID = parameters.Get<int>("@OrderDetailID");
+
+                var orderDetails = new OrderDetails
+                {
+                    OrderDetailID = newOrderDetailID,
+                    OrderID = orderDetail.OrderID,
+                    ProductID = orderDetail.ProductID,
+                    Quantity = orderDetail.Quantity,
+                    Price = orderDetail.Price
+                };
+                return orderDetails;
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<List<Order>> GetOrdersByUserIdAsync(int userId)
         {
-            var param = new DynamicParameters();
-            param.Add("@UserID", userId, DbType.Int32);
+            try
+            {
+                var userExists = await GetCustomerByIdAsync(userId);
+                var param = new DynamicParameters();
+                param.Add("@UserID", userId, DbType.Int32);
 
-            var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param,commandType: CommandType.StoredProcedure);
+                var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param, commandType: CommandType.StoredProcedure);
 
-            return orders.ToList();
+                return orders.ToList();
+            }
+            catch (NotFoundException ex)
+            {
+                throw new NotFoundException(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<List<OrderProductsDTO>> GetProductDetails(int userId, int orderId)
         {
-            var param = new DynamicParameters();
-            param.Add("@UserID", userId, DbType.Int32);
-            param.Add("@OrderID", orderId, DbType.Int32);
+            try
+            {
+                // jgcgjvcgjjkjkk
+                var param = new DynamicParameters();
+                param.Add("@UserID", userId, DbType.Int32);
+                param.Add("@OrderID", orderId, DbType.Int32);
 
-            var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails",param,commandType: CommandType.StoredProcedure);
+                var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails", param, commandType: CommandType.StoredProcedure);
 
-            return productDetails.ToList();
+                return productDetails.ToList();
+            }catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task<bool> ValidateUserNamePassword(string userName, string password)
