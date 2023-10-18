@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+//using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using ShoppingCart.Models;
 using ShoppingCart.Models.DTO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 
@@ -15,15 +18,30 @@ namespace ShoppingCart.Services
         {
             this.httpClientFactory = httpClientFactory;
         }
+        
         public async Task AddUser(RegistrationDto ReDto)
         {
             var httpClient = httpClientFactory.CreateClient("WebAPI");
 
-            string jsonContent = JsonConvert.SerializeObject(ReDto);
-            var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-            var response = await httpClient.PostAsync("api/Customer/Add", stringContent);
+            try
+            {
+                //var Exceptionname = ReDto.Exceptionname;
+                //var apiurl = $"api/Customer/Add/{Exceptionname}";
+                string jsonContent = JsonConvert.SerializeObject(ReDto);
+                var stringContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var response = await httpClient.PostAsync("api/Customer/Add", stringContent);
+
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    ReDto.Exceptionname = "User Exist";
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                throw ex;
+            }
         }
-        
+
 
         public async Task<LoginDto> GetUsernamePassword(string username)
         {
@@ -36,8 +54,6 @@ namespace ShoppingCart.Services
             string requestUrl = QueryHelpers.AddQueryString("api/Customer/Validate", queryParams);
 
             var response = await httpClient.GetAsync(requestUrl);
-
-
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -84,7 +100,7 @@ namespace ShoppingCart.Services
         public async Task<List<CartItemsDTO>> GetCartItems(int UserID)
         {
             var httpClient = httpClientFactory.CreateClient("WebAPI");
- 
+
             var response = await httpClient.GetAsync($"api/Cart/UserID/{UserID}");
             if (response.IsSuccessStatusCode)
             {
@@ -169,10 +185,49 @@ namespace ShoppingCart.Services
             string requestUrl = QueryHelpers.AddQueryString("api/Order/GetProductDetails", queryParams);
 
             var response = await httpClient.GetAsync(requestUrl);
-            
+
             var content = await response.Content.ReadAsStringAsync();
             var products = JsonConvert.DeserializeObject<List<OrderProductDTO>>(content);
             return products;
         }
+
+        public async Task<bool> GetUsernameAndPassword(string username, string password)
+        {
+            var httpClient = httpClientFactory.CreateClient("WebAPI");
+            var queryParams = new List<KeyValuePair<string, string>>
+             {
+                 new KeyValuePair<string, string>("username", username),
+                 new KeyValuePair<string, string>("password", password)
+             };
+
+            string requestUrl = QueryHelpers.AddQueryString("api/Customer/Login", queryParams);
+
+            var response = await httpClient.GetAsync(requestUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                var userLogins = JsonConvert.DeserializeObject<bool>(content);
+                if (userLogins)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var content = await response.Content.ReadAsStringAsync();
+            //    var userLogins = JsonConvert.DeserializeObject<LoginDto>(content);
+            //    return userLogins;
+            //}
+            //return null;
+        }
     }
 }
+

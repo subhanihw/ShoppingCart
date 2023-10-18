@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.API.Models.DTO;
 using ShoppingCart.API.Repositories;
+using System.Data.SqlClient;
 
 namespace ShoppingCart.API.Controllers
 {
@@ -32,15 +34,29 @@ namespace ShoppingCart.API.Controllers
             {
                 return NotFound($"Customer with ID = {id} not found");
             }
-            return Ok(customer);    
+            return Ok(customer);
         }
 
         [HttpPost]
         [Route("Add")]
         public async Task<IActionResult> AddCustomer(CustomerDTO Customer)
         {
-            var NewCustomer = await repository.AddCustomer(Customer);
-            return Ok(NewCustomer);
+            try
+            {
+                var NewCustomer = await repository.AddCustomer(Customer);
+                if (string.IsNullOrEmpty(NewCustomer.Exceptionname))
+                {
+
+                    return Ok(NewCustomer);
+                }
+                return BadRequest(NewCustomer.Exceptionname);
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+
+            }
         }
 
         [HttpDelete]
@@ -73,12 +89,28 @@ namespace ShoppingCart.API.Controllers
         public async Task<IActionResult> GetPasswordByUserName([FromQuery] string username)
         {
             var validateDTO = await repository.GetPasswordByUserNameAsync(username);
-            
+
             if (validateDTO.password != null)
             {
                 return Ok(validateDTO);
             }
             return BadRequest("Invalid Credentials");
         }
+        [HttpGet]
+        [Route("Login")]
+        public async Task<bool> GetPasswordAndUserName([FromQuery] string username, string password)
+        {
+            var validateDTO = await repository.GetPasswordAndUsernameAsync(username, password);
+
+            if (validateDTO)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
+

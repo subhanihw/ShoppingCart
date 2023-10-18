@@ -1,11 +1,17 @@
 ﻿@page
+@using static ShoppingCart.Pages.ShoppingCartPages.RegistrationModel;
 @model ShoppingCart.Pages.ShoppingCartPages.RegistrationModel
+
 @{
     Layout = "_LayoutWithoutNav";
 }
+@section scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
+@Html.AntiForgeryToken()
 <h1>Register</h1>
-<div asp-validation-summary="All" class="text-danger"></div>
-<form method="post">
+@* <div asp-validation-summary="All" class="text-danger"></div> *@
+@* <form method="post">
     <div class="form-group">
         <label for="Username">Username</label>
         <input type="text" class="form-control" id="Username" name="Username" asp-for="User.Username" />
@@ -64,7 +70,6 @@
             <option value="Uttar Pradesh">Uttar Pradesh</option>
             <option value="Uttarakhand">Uttarakhand</option>
             <option value="West Bengal">West Bengal</option>
-           
         </select>
         <span asp-validation-for="User.State" class="text-danger"></span>
     </div>
@@ -74,3 +79,99 @@
         <a class="btn btn-success" asp-page="Login">Login</a>
     </div>
 </form>
+ *@
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<form method="post">
+    <div class="form-group">
+        @Html.LabelFor(model => model.User.Username, htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-15">
+            @Html.EditorFor(model => model.User.Username, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.User.Username, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.User.Password, htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-15">
+
+            @Html.EditorFor(model => model.User.Password, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.User.Password, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(model => model.User.Gender, htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-15">
+            @Html.RadioButtonFor(model => model.User.Gender, "M", new { @class = "form-check-input" })
+            <label class="form-check-label" for="User_Gender">Male</label>
+            @Html.RadioButtonFor(model => model.User.Gender, "F", new { @class = "form-check-input" })
+            <label class="form-check-label" for="User_Gender">Female</label>
+        </div>
+        @Html.ValidationMessageFor(model => model.User.Gender, "", new { @class = "text-danger" })
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.User.PhoneNumber, htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-15">
+            @Html.EditorFor(model => model.User.PhoneNumber, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.User.PhoneNumber, "", new { @class = "text-danger" })
+        </div>
+    </div>
+    @*  <div class="form-group">
+    @Html.LabelFor(model => model.User.State, htmlAttributes: new { @class = "control-label col-md-3" })
+    <div class="col-md-15">
+    <select asp-for="User.State" class="form-control">
+    <option value="Andhra Pradesh">Andhra Pradesh</option>
+    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+    <option value="Assam">Assam</option>
+    <option value="Bihar">Bihar</option>
+    <option value="Chhattisgarh">Chhattisgarh</option>
+    <option value="Goa">Goa</option>
+    <option value="Gujarat">Gujarat</option>
+    <option value="Haryana">Haryana</option>
+    <option value="Himachal Pradesh">Himachal Pradesh</option>
+    <option value="Jharkhand">Jharkhand</option>
+    <option value="Karnataka">Karnataka</option>
+    <option value="Kerala">Kerala</option>
+    <option value="Madhya Pradesh">Madhya Pradesh</option>
+    <option value="Maharashtra">Maharashtra</option>
+    <option value="Manipur">Manipur</option>
+    <option value="Meghalaya">Meghalaya</option>
+    <option value="Mizoram">Mizoram</option>
+    <option value="Nagaland">Nagaland</option>
+    <option value="Odisha">Odisha</option>
+    <option value="Punjab">Punjab</option>
+    <option value="Rajasthan">Rajasthan</option>
+    <option value="Sikkim">Sikkim</option>
+    <option value="Tamil Nadu">Tamil Nadu</option>
+    <option value="Telangana">Telangana</option>
+    <option value="Tripura">Tripura</option>
+    <option value="Uttar Pradesh">Uttar Pradesh</option>
+    <option value="Uttarakhand">Uttarakhand</option>
+    <option value="West Bengal">West Bengal</option>
+    </select>
+    </div>
+    @Html.ValidationMessageFor(model => model.User.State, "", new { @class = "text-danger" })
+    </div> *@
+    @{
+        var stateValues = Enum.GetNames(typeof(IndianState));
+    }
+
+    <div class="form-group">
+        @Html.LabelFor(model => model.User.State, htmlAttributes: new { @class = "control-label col-md-3" })
+        <div class="col-md-15">
+            <select asp-for="User.State" class="form-control">
+                @foreach (var state in stateValues)
+                {
+                    <option value="@state">@state</option>
+                }
+            </select>
+        </div>
+        @Html.ValidationMessageFor(model => model.User.State, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+    <div><br /></div>
+    <div>
+        <a class="btn btn-success" asp-page="Login">Login</a>
+    </div>
+</form>
+

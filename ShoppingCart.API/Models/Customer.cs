@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingCart.API.Models
 {
@@ -25,5 +26,8 @@ namespace ShoppingCart.API.Models
         [Required]
         [StringLength(50)]
         public string State { get; set; } = string.Empty;
+
+        public string Exceptionname { get; set; } = string.Empty;
     }
 }
+

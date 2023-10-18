@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingCart.Models
 {
@@ -6,10 +7,12 @@ namespace ShoppingCart.Models
     {
 
         [Required(ErrorMessage = "Username is required.")]
+        [StringLength(50, ErrorMessage = "Username must not exceed 50 characters.")]
         public string Username { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+        [RegularExpression(@"^(?=.*\d.*\d.*\d)[A-Za-z\d]{6,}$", ErrorMessage = "Password must be at least 6 characters long and contain at least 3 numbers.")]
+        [DataType(DataType.Password)]
         public string Password { get; set; }
 
         [Required(ErrorMessage = "Gender is required.")]
@@ -21,5 +24,8 @@ namespace ShoppingCart.Models
 
         [Required(ErrorMessage = "State is required.")]
         public string State { get; set; }
+        public string Exceptionname { get; set; } = string.Empty;
+
     }
 }
+

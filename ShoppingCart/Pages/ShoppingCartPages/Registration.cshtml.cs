@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ShoppingCart.Models;
@@ -7,6 +8,7 @@ using ShoppingCart.Models.DTO;
 
 using System.Net.Http;
 using ShoppingCart.Services;
+//using Microsoft.Data.SqlClient;
 
 namespace ShoppingCart.Pages.ShoppingCartPages
 {
@@ -26,18 +28,64 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         [BindProperty]
         public UserReg User { get; set; }
 
-        public async Task<IActionResult> OnPostAsync([Bind("Username,Password,Gender,PhoneNumber,State")] RegistrationDto reg)
+
+        public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return Page();
+
+                try
+                {
+                    var dto = new RegistrationDto()
+                    {
+                        Exceptionname = User.Exceptionname,
+                        PhoneNumber = User.PhoneNumber,
+                        State = User.State,
+                        Gender = User.Gender,
+                        Password = User.Password,
+                        Username = User.Username,
+                    };
+                    await IRepo.AddUser(dto);
+                    if (string.IsNullOrEmpty(dto.Exceptionname))
+                    {
+                        TempData["RegistrationSuccess"] = true; // Set a flag to indicate successful registration
+                        TempData["Success"] = "Registration Success. Please login";
+                        return RedirectToPage("Login");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("User.Username", "Username is already in use. Please choose a different username.");
+                    }
+
+                }
+                catch (HttpRequestException ex)
+                {
+                    // Handle other exceptions as needed
+                    ModelState.AddModelError(string.Empty, "An error occurred during registration.");
+
+                }
+
             }
+            return Page();
 
-            TempData["Success"] = "Registration Success. Please login";
-            await IRepo.AddUser(reg);
+        }
+        public enum IndianState
 
-            
-            return RedirectToPage("Login");
+        {
+
+            AndhraPradesh,
+
+            ArunachalPradesh,
+            Assam,
+            Bihar,
+            Chhattisgarh,
+            Goa,
+            Gujarat,
+            Haryana,
+            Himachal, Jharkhand, Karnataka, Kerala,
+            MadhyaPradesh, Maharashtra, Manipur, Meghalaya, Mizoram, Nagaland, Odisha, Punjab, Rajasthan,
+            Sikkim, TamilNadu, Telangana, Tripura, UttarPradesh, Uttarakhand, WestBengal
+
 
         }
 

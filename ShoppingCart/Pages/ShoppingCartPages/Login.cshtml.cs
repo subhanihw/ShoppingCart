@@ -1,8 +1,11 @@
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ShoppingCart.Models;
 using ShoppingCart.Models.DTO;
 using ShoppingCart.Services;
+using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingCart.Pages.ShoppingCartPages
 {
@@ -14,45 +17,62 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         {
             this.IRepo = IRepo;
         }
-        
+
         public void OnGet()
         {
 
+            //ModelState.Clear();
+
+
         }
+
         [BindProperty]
         public UserLogin UserL { get; set; } = new UserLogin();
 
 
         public async Task<IActionResult> OnPostAsync()
         {
+
             if (ModelState.IsValid)
             {
+
+
+                //string username = UserL.Username;
+
+                //LoginDto userLogins = await IRepo.GetUsernamePassword(username);
+
+
+                //if (userLogins != null && userLogins.UserName == UserL.Username)
+                //{
+
+                //    if(userLogins.Password == UserL.Password)
+                //    {
+                //        TempData["UserID"] = userLogins.UserID;
+                //        return RedirectToPage("/ProductsPage");
+                //    }
+
+                //}
+
+                //else
+                //{
+                //    ModelState.AddModelError(string.Empty, "Invalid username or Password. Please Register");
+                //    return Page();
+                //}
                 string username = UserL.Username;
+                string password = UserL.Password;
 
-                LoginDto userLogins = await IRepo.GetUsernamePassword(username);
-                
-
-                if (userLogins != null && userLogins.UserName == UserL.Username)
+                var userLogins = await IRepo.GetUsernameAndPassword(username, password);
+                if (userLogins)
                 {
-                
-                    if(userLogins.Password == UserL.Password)
-                    {
-                        TempData["UserID"] = userLogins.UserID;
-                        return RedirectToPage("/ProductsPage");
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, "Invalid Password. Please try again");
-                        return Page();
-                    }
+                    //TempData["UserID"] = userLogins.UserID;
 
+                    return RedirectToPage("/ProductsPage");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid username or Please Register");
+                    ModelState.AddModelError(string.Empty, "Invalid username or Password. Please Register");
                     return Page();
                 }
-                
             }
 
 
@@ -60,3 +80,4 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         }
     }
 }
+

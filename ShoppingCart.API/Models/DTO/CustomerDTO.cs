@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingCart.API.Models.DTO
 {
-    public class CustomerDTO
+    public partial class CustomerDTO
     {
         [Required]
         [StringLength(50)]
@@ -23,5 +24,8 @@ namespace ShoppingCart.API.Models.DTO
         [Required]
         [StringLength(50)]
         public string State { get; set; } = string.Empty;
+
+        public string Exceptionname { get; set; } = string.Empty;
     }
 }
+

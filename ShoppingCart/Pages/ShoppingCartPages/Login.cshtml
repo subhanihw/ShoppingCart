@@ -1,38 +1,51 @@
-﻿@page "/"
+﻿
+@page "/"
 @model ShoppingCart.Pages.ShoppingCartPages.LoginModel
-@{
-    Layout = "_LayoutWithoutNav";
+@using (Html.BeginForm())
+    @using Microsoft.AspNetCore.Mvc.ModelBinding
+
+    @{
+        Layout = "_LayoutWithoutNav";
 }
 
+@section scripts{
+    <partial name="_ValidationScriptsPartial" />
+}
+@Html.AntiForgeryToken()
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card">
                 <h2 class="card-header">Login</h2>
                 <div class="card-body">
-                    <div asp-validation-summary="All" class="text-danger"></div>
                     @if (TempData["Success"] != null)
                     {
                         <p class="fw-bold">@TempData["Success"]</p>
                     }
-
-                    <form method="post">
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    <form method="post" data-ajax="true" data-ajax-method="post">
                         <div class="form-group">
-                            <label for="Username">Username:</label>
-                            <input type="text" id="Username" name="Username" class="form-control" asp-for="UserL.Username" />
-                            <span asp-validation-for="UserL.Username" class="text-danger"></span>
+                            @* <label asp-for="UserL.Username"></label>
+                            <input asp-for="UserL.Username" class="form-control" data-val="true" data-val-required="Username is required" />  *@
+
+                            @Html.LabelFor(model => model.UserL.Username, htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-15">
+                                @Html.EditorFor(model => model.UserL.Username, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.UserL.Username, "", new { @class = "text-danger" })
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label for="Password">Password:</label>
-                            <input type="password" id="Password" name="Password" class="form-control" asp-for="UserL.Password" />
-                            <span asp-validation-for="UserL.Password" class="text-danger"></span>
+                            @* <label asp-for="UserL.Password"></label>
+                            <input asp-for="UserL.Password" class="form-control" data-val="true" data-val-required="Password is required" /> *@
+                            @Html.LabelFor(model => model.UserL.Password, htmlAttributes: new { @class = "control-label col-md-3" })
+                            <div class="col-md-15">
+                                @Html.EditorFor(model => model.UserL.Password, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.UserL.Password, "", new { @class = "text-danger" })
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-between align-items-center m-2">
                             <button type="submit" class="btn btn-primary">Login</button>
-</form>
-<br />
-<div>
                             <a class="btn btn-success" asp-page="Registration">Registration</a>
                         </div>
                     </form>
@@ -41,3 +54,6 @@
         </div>
     </div>
 </div>
+
+
+

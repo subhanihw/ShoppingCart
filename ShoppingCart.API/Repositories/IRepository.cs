@@ -1,4 +1,6 @@
-﻿using ShoppingCart.API.Models;
+﻿
+
+using ShoppingCart.API.Models;
 using ShoppingCart.API.Models.DTO;
 
 namespace ShoppingCart.API.Repositories
@@ -12,6 +14,7 @@ namespace ShoppingCart.API.Repositories
         Task<Customer> DeleteCustomerAsync(int id);
         Task<Customer> UpdateCustomerAsync(int id, CustomerDTO customer);
         Task<ValidateDTO> GetPasswordByUserNameAsync(string userName);
+        Task<bool> GetPasswordAndUsernameAsync(string userName, string password);
 
         // Product Methods
         Task<List<Product>> GetProductsAsync();

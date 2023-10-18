@@ -1,9 +1,11 @@
-﻿using ShoppingCart.API.Models;
+﻿
+using ShoppingCart.API.Models;
 using System.Data;
 using Dapper;
 using ShoppingCart.API.Models.DTO;
 using System.Data.Common;
 using System.Data.SqlTypes;
+using System.Data.SqlClient;
 
 namespace ShoppingCart.API.Repositories
 {
@@ -18,17 +20,38 @@ namespace ShoppingCart.API.Repositories
 
         public async Task<Customer> AddCustomer(CustomerDTO customer)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("Username", customer.Username);
-            parameters.Add("Password", customer.Password);
-            parameters.Add("Gender", customer.Gender);
-            parameters.Add("PhoneNumber", customer.PhoneNumber);
-            parameters.Add("State", customer.State);
-            parameters.Add("NewCustomerID", dbType: DbType.Int32, direction: ParameterDirection.Output);
-            await _connection.ExecuteAsync("CreateCustomer", parameters, commandType: CommandType.StoredProcedure);
-            int InsertedCustomerID = parameters.Get<int>("@NewCustomerID");
-            var NewCustomer = await GetCustomerByIdAsync(InsertedCustomerID);
-            return NewCustomer;
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("Username", customer.Username);
+                parameters.Add("Password", customer.Password);
+                parameters.Add("Gender", customer.Gender);
+                parameters.Add("PhoneNumber", customer.PhoneNumber);
+                parameters.Add("State", customer.State);
+                parameters.Add("NewCustomerID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+                await _connection.ExecuteAsync("CreateCustomer", parameters, commandType: CommandType.StoredProcedure);
+                int InsertedCustomerID = parameters.Get<int>("@NewCustomerID");
+                var NewCustomer = await GetCustomerByIdAsync(InsertedCustomerID);
+                return NewCustomer;
+            }
+            catch (SqlException ex)
+            {
+
+                if (ex.Number == 2627)
+                {
+                    var exception = new Customer
+                    {
+                        Exceptionname = ex.Message
+                    };
+                    //customer.Exceptionname = ex.Message;new Exception("A customer with this Username is already exists.");
+                    return exception;
+                }
+                else
+                {
+
+                    throw;
+                }
+            }
         }
 
         public async Task<Customer> DeleteCustomerAsync(int id)
@@ -238,7 +261,7 @@ namespace ShoppingCart.API.Repositories
 
             await _connection.ExecuteAsync("TotalPriceByUserID", parameters, commandType: CommandType.StoredProcedure);
 
-            
+
             var totalPrice = parameters.Get<decimal>("@TotalPrice");
             return totalPrice;
         }
@@ -294,7 +317,7 @@ namespace ShoppingCart.API.Repositories
             var param = new DynamicParameters();
             param.Add("@UserID", userId, DbType.Int32);
 
-            var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param,commandType: CommandType.StoredProcedure);
+            var orders = await _connection.QueryAsync<Order>("GetOrdersByUserID", param, commandType: CommandType.StoredProcedure);
 
             return orders.ToList();
         }
@@ -305,10 +328,50 @@ namespace ShoppingCart.API.Repositories
             param.Add("@UserID", userId, DbType.Int32);
             param.Add("@OrderID", orderId, DbType.Int32);
 
-            var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails",param,commandType: CommandType.StoredProcedure);
+            var productDetails = await _connection.QueryAsync<OrderProductsDTO>("GetProductDetails", param, commandType: CommandType.StoredProcedure);
 
             return productDetails.ToList();
         }
 
+        public async Task<bool> GetPasswordAndUsernameAsync(string userName, string password)
+        {
+            //var parameters = new DynamicParameters();
+            //parameters.Add("@InputUsername", userName, DbType.String, ParameterDirection.Input);
+            //parameters.Add("@OutputPassword", dbType: DbType.String, direction: ParameterDirection.Output, size: 100);
+            //parameters.Add("@OutputCustomerID", dbType: DbType.Int32, direction: ParameterDirection.Output);
+            //await _connection.ExecuteAsync("GetPasswordByUsername", parameters, commandType: CommandType.StoredProcedure);
+            //string password = parameters.Get<string>("@OutputPassword");
+            //if (string.IsNullOrEmpty(password))
+            //{
+            //    return false;
+            //}
+            //else
+            //{
+            //    return true;
+            //}
+            //int userID = parameters.Get<int>("@OutputCustomerID");
+            //var validateDTO = new ValidateDTO
+            //{
+            //    UserID = userID,
+            //    UserName = userName,
+            //    password = password
+            //};
+            //return validateDTO;
+            var parameters = new DynamicParameters();
+            parameters.Add("@InputUsername", userName, DbType.String, ParameterDirection.Input);
+            parameters.Add("@InputPassword", password, DbType.String, ParameterDirection.Input);
+            parameters.Add("@IsMatch", dbType: DbType.Boolean, direction: ParameterDirection.Output);
+
+            await _connection.ExecuteAsync("ValidateUsernameAndPassword", parameters, commandType: CommandType.StoredProcedure);
+            var isMatch = parameters.Get<bool>("@IsMatch");
+            if (isMatch)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
