@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.API.ExceptionHandling;
 using ShoppingCart.API.Models.DTO;
 using ShoppingCart.API.Repositories;
 
@@ -19,66 +20,118 @@ namespace ShoppingCart.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCustomers()
         {
-            var customers = await repository.GetCustomersAsync();
-            return Ok(customers);
+            try
+            {
+                var customers = await repository.GetCustomersAsync();
+                return Ok(customers);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("{id}")]
         public async Task<IActionResult> GetCustomerByID([FromRoute] int id)
         {
-            var customer = await repository.GetCustomerByIdAsync(id);
-            if (customer == null)
+            try
             {
-                return NotFound($"Customer with ID = {id} not found");
-            }
-            return Ok(customer);    
+                var customer = await repository.GetCustomerByIdAsync(id);
+                return Ok(customer);
+            }catch (NotFoundException ex){
+                return NotFound(ex.Message);
+            } 
+            catch (Exception ex) { 
+                return StatusCode(500, ex.Message);
+            } 
         }
 
         [HttpPost]
         [Route("Add")]
         public async Task<IActionResult> AddCustomer(CustomerDTO Customer)
         {
-            var NewCustomer = await repository.AddCustomer(Customer);
-            return Ok(NewCustomer);
+            try
+            {
+                var NewCustomer = await repository.AddCustomer(Customer);
+                return Ok(NewCustomer);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var Customer = await repository.DeleteCustomerAsync(id);
-            if (Customer != null)
+            try
             {
+                var Customer = await repository.DeleteCustomerAsync(id);
                 return Ok(Customer);
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPut]
         [Route("{id}")]
         public async Task<IActionResult> UpdateCustomer([FromRoute] int id, [FromBody] CustomerDTO Customer)
         {
-            var Cust = await repository.UpdateCustomerAsync(id, Customer);
-
-            if (Cust != null)
+            try
             {
+                var Cust = await repository.UpdateCustomerAsync(id, Customer);
                 return Ok(Cust);
             }
-            return NotFound($"Customer with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("Validate")]
         public async Task<IActionResult> GetPasswordByUserName([FromQuery] string username)
         {
-            var validateDTO = await repository.GetPasswordByUserNameAsync(username);
-            
-            if (validateDTO.password != null)
+             var validateDTO = await repository.GetPasswordByUserNameAsync(username);
+
+             if (validateDTO.password != null)
+             {
+                 return Ok(validateDTO);
+             }
+             return BadRequest("Invalid Credentials");
+        }
+
+        [HttpGet]
+        [Route("ValidateUser")]
+        public async Task<IActionResult> ValidateUser([FromQuery] string username, [FromQuery] string password)
+        {
+           try
             {
-                return Ok(validateDTO);
+                var isExists = await repository.ValidateUserNamePassword(username, password);
+                var response = new AuthenticationResponse
+                {
+                    IsAuthenticated = isExists
+                };
+
+                return Ok(response);
+
             }
-            return BadRequest("Invalid Credentials");
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace ShoppingCart.Services
         Task AddUser(RegistrationDto ReDto);
         Task<LoginDto> GetUsernamePassword(string username);
         Task AddToCart(AddToCartDTO addToCart);
-
+        Task DeleteAllCartItems(int userID);
         Task<List<CartItemsDTO>> GetCartItems(int UserID);
         Task<decimal> GetTotalPriceCart(int UserID);
         Task DeleteCartItem(int UserID, int ProductID);
@@ -21,6 +21,5 @@ namespace ShoppingCart.Services
         Task InsertOrderDetails(OrderDetailDTO orderDetail);
         Task<List<Order>> GetOrderByUserID(int UserID);
         Task<List<OrderProductDTO>> GetProductDetails(int UserID, int OrderID);
-        
     }
 }

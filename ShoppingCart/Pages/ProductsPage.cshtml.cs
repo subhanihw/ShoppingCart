@@ -21,9 +21,9 @@ namespace ShoppingCart.Pages
             ProductItems = await apiService.GetAll();
         }
 
-        public async Task<IActionResult> OnPostAsync(int productId)
+        public async Task<IActionResult> OnPostAsync(int productId, int quantity)
         {
-            var addTocartDTO = new AddToCartDTO { UserID = Convert.ToInt32(TempData["UserID"]), ProductId = productId, Quantity = 1};
+            var addTocartDTO = new AddToCartDTO { UserID = Convert.ToInt32(TempData["UserID"]), ProductId = productId, Quantity = quantity};
             TempData.Keep("UserID");
             await apiService.AddToCart(addTocartDTO);
             TempData["Success"] = "Added Successfully";

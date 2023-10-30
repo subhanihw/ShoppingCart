@@ -36,7 +36,7 @@ namespace ShoppingCart.Pages
                     Quantity = cartItem.Quantity,
                     Price = cartItem.Price,
                 };
-
+                await apiService.DeleteAllCartItems(userID);
                 await apiService.InsertOrderDetails(orderDetail);
             }
         }

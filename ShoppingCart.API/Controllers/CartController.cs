@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.API.ExceptionHandling;
 using ShoppingCart.API.Models.DTO;
 using ShoppingCart.API.Repositories;
 
@@ -19,58 +20,112 @@ namespace ShoppingCart.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllCartItems()
         {
-            var cartItems = await repository.GetCartsAsync();
-            return Ok(cartItems);
-        }
-
-        [HttpGet]
-        [Route("UserID/{id}")]
-        public async Task<IActionResult> GetCartItemByUserID([FromRoute] int id)
-        {
-            var cartItem = await repository.GetCartByUserIdAsync(id);
-            if (cartItem == null)
+            try
             {
-                return NotFound($"Cart item with ID = {id} not found");
+                var cartItems = await repository.GetCartsAsync();
+                return Ok(cartItems);
+            } catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
-            return Ok(cartItem);
         }
 
         [HttpGet]
-        [Route("TotalPrice/{id}")]
-        public async Task<IActionResult> GetTotalPriceByUserID([FromRoute] int id)
+        [Route("UserID/{UserID}")]
+        public async Task<IActionResult> GetCartItemByUserID([FromRoute] int UserID)
         {
-            var totalPrice = await repository.GetTotalPrice(id);
-            TotalPriceDTO dto = new TotalPriceDTO { UserID = id , Total = totalPrice};
-            return Ok(dto);
+            try
+            {
+                var cartItem = await repository.GetCartByUserIdAsync(UserID);
+                if (cartItem.Count == 0)
+                {
+                    return Ok("Cart is Empty");
+                }
+                return Ok(cartItem);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("TotalPrice/{UserID}")]
+        public async Task<IActionResult> GetTotalPriceByUserID([FromRoute] int UserID)
+        {
+            try
+            {
+                var totalPrice = await repository.GetTotalPrice(UserID);
+                if (totalPrice == 0.0m)
+                    return Ok("Cart is Empty");
+                TotalPriceDTO dto = new TotalPriceDTO { UserID = UserID, Total = totalPrice };
+                return Ok(dto);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
         [Route("Add")]
         public async Task<IActionResult> AddCartItem(CartDTO cartItem)
         {
-            var newCartItem = await repository.AddCart(cartItem);
-            return Ok(newCartItem);
+            try
+            {
+                var newCartItem = await repository.AddCart(cartItem);
+                return Ok(newCartItem);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpDelete]
         [Route("Delete")]
         public async Task<IActionResult> DeleteCartItem([FromQuery] int UserID, [FromQuery] int ProductID)
         {
-            await repository.DeleteCartByIdAsync(UserID, ProductID);
-            return Ok();
+            try
+            {
+                await repository.DeleteCartByIdAsync(UserID, ProductID);
+                return Ok();
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> UpdateCartItem([FromRoute] int id, [FromQuery] int Quantity)
+        [HttpDelete]
+        [Route("DeleteAllCartItems/{UserID}")]
+        public async Task<IActionResult> DeleteAll([FromRoute] int UserID)
         {
-            var updatedCartItem = await repository.UpdateCartItemQuantityByIdAsync(id, Quantity);
-
-            if (updatedCartItem != null)
+            try
             {
-                return Ok(updatedCartItem);
+                await repository.DeleteCart(UserID);
+                return Ok();
             }
-            return NotFound($"Cart item with ID = {id} not found");
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

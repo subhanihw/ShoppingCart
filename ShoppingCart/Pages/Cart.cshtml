@@ -3,7 +3,6 @@
 @{
 }
 <style>
-    /* Styles for the modal dialog */
     .modal {
         display: none;
         position: fixed;
@@ -47,7 +46,25 @@
                         <h5 class="card-title">@cart.Name</h5>
                         <p class="card-text">@cart.Description</p>
                         <p class="card-text">Price: $@cart.Price</p>
+
+
                         <p class="card-text">Quantity: @cart.Quantity</p>
+
+                        <form method="post" asp-page="Cart" asp-page-handler="UpdateQuantity">
+                            <div class="input-group">
+                                <button class="btn btn-primary" type="button" onclick="decrementQuantity(@cart.ProductID)">-</button>
+                                <input type="number" id="quantity-@cart.ProductID" name="Quantity" class="form-control form-control m-2" value="@cart.Quantity">
+                                <button class="btn btn-primary" type="button" onclick="incrementQuantity(@cart.ProductID)">+</button>
+                                <input type="hidden" name="productID" value="@cart.ProductID" />
+                
+                            </div>
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary">Update</button>
+                            </span>
+                        </form>
+                        
+                        
+                        
                         <form method="post" asp-page-handler="Delete">
                             <input type="hidden" name="ProductId" value="@cart.ProductID" />
                             <button type="submit" class="btn btn-danger">Delete</button>
@@ -71,6 +88,20 @@
         </div>
 
         <script>
+            function incrementQuantity(productId) {
+                var quantityInput = document.getElementById("quantity-" + productId);
+                var currentQuantity = parseInt(quantityInput.value);
+                quantityInput.value = currentQuantity + 1;
+                
+            }
+
+            function decrementQuantity(productId) {
+                var quantityInput = document.getElementById("quantity-" + productId);
+                var currentQuantity = parseInt(quantityInput.value);
+                if (currentQuantity > 1) {
+                    quantityInput.value = currentQuantity - 1;
+                }
+            }
 
             function showCustomPrompt() {
             var modal = document.getElementById("customPrompt");
@@ -82,7 +113,7 @@
             }
             function FailedPage() {
 
-            window.location.href = '/FailPage';
+            window.location.href = '/Cart';
             }
         </script>
     </body>
