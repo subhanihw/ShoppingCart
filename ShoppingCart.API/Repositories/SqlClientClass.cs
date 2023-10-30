@@ -41,7 +41,7 @@ namespace ShoppingCart.API.Repositories
                 {
                     var exception = new Customer
                     {
-                        Exceptionname = ex.Message
+                        Exceptionname = "User Exist"// ex.Message
                     };
                     //customer.Exceptionname = ex.Message;new Exception("A customer with this Username is already exists.");
                     return exception;

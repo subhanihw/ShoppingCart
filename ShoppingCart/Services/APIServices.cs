@@ -19,7 +19,7 @@ namespace ShoppingCart.Services
             this.httpClientFactory = httpClientFactory;
         }
         
-        public async Task AddUser(RegistrationDto ReDto)
+        public async Task AddUser(RegistrationDto ReDto, ExceptionResponseDto exceptionResponseDto)
         {
             var httpClient = httpClientFactory.CreateClient("WebAPI");
 
@@ -33,7 +33,9 @@ namespace ShoppingCart.Services
 
                 if (response.StatusCode == HttpStatusCode.BadRequest)
                 {
-                    ReDto.Exceptionname = "User Exist";
+                    var tokenResponse = await response.Content.ReadAsStringAsync();
+                    //var loginResponse = JsonConvert.DeserializeObject<ResponseDto>(tokenResponse);
+                    exceptionResponseDto.Exception = tokenResponse;
                 }
             }
             catch (HttpRequestException ex)

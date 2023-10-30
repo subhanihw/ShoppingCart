@@ -29,7 +29,7 @@ namespace ShoppingCart.Pages.ShoppingCartPages
         public UserReg User { get; set; }
 
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(ExceptionResponseDto exceptionResponseDto)
         {
             if (ModelState.IsValid)
             {
@@ -38,15 +38,15 @@ namespace ShoppingCart.Pages.ShoppingCartPages
                 {
                     var dto = new RegistrationDto()
                     {
-                        Exceptionname = User.Exceptionname,
+                        
                         PhoneNumber = User.PhoneNumber,
                         State = User.State,
                         Gender = User.Gender,
                         Password = User.Password,
                         Username = User.Username,
                     };
-                    await IRepo.AddUser(dto);
-                    if (string.IsNullOrEmpty(dto.Exceptionname))
+                    await IRepo.AddUser(dto, exceptionResponseDto);
+                    if (string.IsNullOrEmpty(exceptionResponseDto.Exception))
                     {
                         TempData["RegistrationSuccess"] = true; // Set a flag to indicate successful registration
                         TempData["Success"] = "Registration Success. Please login";

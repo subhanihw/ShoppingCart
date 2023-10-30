@@ -24,7 +24,7 @@ namespace ShoppingCart.Models
 
         [Required(ErrorMessage = "State is required.")]
         public string State { get; set; }
-        public string Exceptionname { get; set; } = string.Empty;
+        
 
     }
 }

@@ -10,7 +10,7 @@ namespace ShoppingCart.Services
     {
         Task<List<Product>> GetAll();
         Task<List<Cart>> GetAllCart();
-        Task AddUser(RegistrationDto ReDto);
+        Task AddUser(RegistrationDto ReDto, ExceptionResponseDto exceptionResponseDto);
         Task<LoginDto> GetUsernamePassword(string password);
         Task<bool> GetUsernameAndPassword(string username, string password);
         Task AddToCart(AddToCartDTO addToCart);

@@ -21,6 +21,6 @@ namespace ShoppingCart.Models.DTO
 
         
         public string State { get; set; }
-        public string Exceptionname { get; set; } = string.Empty;
+        
     }
 }
